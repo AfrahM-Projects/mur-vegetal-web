@@ -44,8 +44,8 @@
 
   <script>
     function chargerDonnees() {
-      // Lecture du fichier data.json dans le même dépôt que l'interface
-      const url = "data.json?t=" + new Date().getTime(); // anti-cache
+      // 🔁 Lecture du fichier JSON depuis le même dépôt (mur-vegetal-web)
+      const url = "data.json?t=" + new Date().getTime(); // pour éviter le cache
 
       fetch(url)
         .then(response => response.json())
