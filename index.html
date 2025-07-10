@@ -10,7 +10,9 @@
       text-align: center;
       padding: 30px;
     }
-    h1 { color: green; }
+    h1 {
+      color: green;
+    }
     .data {
       font-size: 24px;
       margin: 15px 0;
@@ -39,29 +41,26 @@
   <div class="data" id="air">Qualité de l'air : ...</div>
 
   <button onclick="chargerDonnees()">Rafraîchir</button>
-  
-<script>
-  function chargerDonnees() {
-    // Ajout d’un paramètre aléatoire pour éviter le cache
-    const url = "https://raw.githubusercontent.com/AfrahM-Projects/mur-vegetal-data/main/data.json?t=" + new Date().getTime();
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
-        document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
-        document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
-      })
-      .catch(error => {
-        console.error("Erreur JSON :", error);
-        alert("Erreur lors du chargement des données.");
-      });
-  }
+  <script>
+    function chargerDonnees() {
+      // Lecture du fichier data.json dans le même dépôt que l'interface
+      const url = "data.json?t=" + new Date().getTime(); // anti-cache
 
-  // Appel automatique au chargement de la page
-  window.onload = chargerDonnees;
-</script>
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
+          document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
+          document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
+        })
+        .catch(error => {
+          console.error("Erreur JSON :", error);
+          alert("Erreur lors du chargement des données.");
+        });
+    }
 
-
+    window.onload = chargerDonnees;
+  </script>
 </body>
 </html>
