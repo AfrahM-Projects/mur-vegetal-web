@@ -24,7 +24,7 @@
   <div class="data" id="air">Qualité de l'air : ...</div>
 
   <script>
-    fetch("https://raw.githubusercontent.com/afrahm-projects/mur-vegetal-data/main/data.json")
+    fetch("https://raw.githubusercontent.com/AfrahM-Projects/mur-vegetal-data/main/data.json")
       .then(response => response.json())
       .then(data => {
         document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
