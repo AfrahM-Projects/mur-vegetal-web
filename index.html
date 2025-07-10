@@ -1,116 +1,70 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <title>Mur Végétal Intelligent</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e0f2f1, #a5d6a7);
+      font-family: Arial, sans-serif;
+      background-color: #eafbe7;
       text-align: center;
       padding: 30px;
-      color: #2e7d32;
-    }
-    img {
-      max-width: 250px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     h1 {
-      font-weight: 700;
-      margin-bottom: 30px;
-      font-size: 2.5rem;
+      color: green;
     }
     .data {
-      font-size: 1.8rem;
+      font-size: 24px;
       margin: 15px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .data span.value {
-      font-weight: 700;
-    }
-    .icon {
-      width: 30px;
-      height: 30px;
-      filter: invert(34%) sepia(44%) saturate(537%) hue-rotate(75deg) brightness(90%) contrast(89%);
     }
     button {
-      background-color: #388e3c;
+      background-color: green;
       color: white;
-      font-size: 1.2rem;
-      padding: 12px 30px;
+      font-size: 18px;
+      padding: 10px 20px;
       border: none;
-      border-radius: 10px;
+      border-radius: 8px;
       cursor: pointer;
-      margin-top: 30px;
+      margin-top: 20px;
       transition: background-color 0.3s ease;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
     }
     button:hover {
-      background-color: #2e7d32;
+      background-color: darkgreen;
     }
-    /* Couleurs dynamiques pour humidité */
-    .humidite.high { color: #2e7d32; } /* vert */
-    .humidite.low { color: #d32f2f; }  /* rouge */
   </style>
 </head>
 <body>
-  <!-- Photo à mettre dans /images/plant.jpg -->
-  <img src="images/plant.jpg" alt="Mur Végétal Intelligent">
-
   <h1>🌿 Mur Végétal Intelligent</h1>
 
-  <div class="data humidite">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/water.png" alt="Humidité" />
-    <div>Humidité : <span id="humidite" class="value">...</span> %</div>
-  </div>
-
-  <div class="data">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/sun--v1.png" alt="Luminosité" />
-    <div>Luminosité : <span id="luminosite" class="value">...</span> lux</div>
-  </div>
-
-  <div class="data">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/air.png" alt="Qualité de l'air" />
-    <div>Qualité de l'air : <span id="air" class="value">...</span></div>
-  </div>
+  <div class="data" id="humidite">Humidité : ...</div>
+  <div class="data" id="luminosite">Luminosité : ...</div>
+  <div class="data" id="air">Qualité de l'air : ...</div>
 
   <button onclick="chargerDonnees()">Rafraîchir</button>
 
   <script>
     function chargerDonnees() {
       console.log("🔁 Rafraîchissement en cours...");
-      const url = "data.json?t=" + new Date().getTime();
+
+      const url = "data.json?t=" + new Date().getTime(); // Anti-cache
 
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          document.getElementById("humidite").textContent = data.humidite;
-          document.getElementById("luminosite").textContent = data.luminosite;
-          document.getElementById("air").textContent = data.air;
-
-          // Couleur dynamique humidité
-          const humiditeDiv = document.querySelector('.humidite');
-          if(data.humidite >= 50) {
-            humiditeDiv.classList.add('high');
-            humiditeDiv.classList.remove('low');
-          } else {
-            humiditeDiv.classList.add('low');
-            humiditeDiv.classList.remove('high');
-          }
-
-          console.log("✅ Données mises à jour");
+          document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
+          document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
+          document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
+          console.log("✅ Données mises à jour avec succès");
         })
         .catch(error => {
-          console.error("❌ Erreur JSON :", error);
+          console.error("❌ Erreur lors du chargement JSON :", error);
           alert("Erreur lors du chargement des données.");
         });
     }
+
+    // Chargement automatique au démarrage 
     window.onload = chargerDonnees;
   </script>
 </body>
 </html>
+
