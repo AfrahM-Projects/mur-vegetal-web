@@ -1,7 +1,6 @@
 {
-  "humidite": 77,
-  "luminosite": 250,
-  "air": "Très bon"
+  "humidite": 99,
+  "luminosite": 1,
+  "air": "Pollué"
 }
-```).
 
