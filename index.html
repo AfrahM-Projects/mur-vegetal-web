@@ -1,11 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Mur Végétal</title>
+  <meta charset="UTF-8" />
+  <title>Mur Végétal Intelligent</title>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: #eafbe7;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 { color: green; }
+    .data {
+      font-size: 24px;
+      margin: 15px;
+    }
+  </style>
 </head>
 <body>
-  <h1>🌿 Bonjour Afrah !</h1>
-  <p>Données de ton mur végétal bientôt ici 🌡️☀️💨</p>
+  <h1>🌿 Mur Végétal Intelligent</h1>
+  <div class="data" id="humidite">Humidité : ...</div>
+  <div class="data" id="luminosite">Luminosité : ...</div>
+  <div class="data" id="air">Qualité de l'air : ...</div>
+
+  <script>
+    fetch("https://raw.githubusercontent.com/afrahm-projects/mur-vegetal-data/main/data.json")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
+        document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
+        document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
+      })
+      .catch(error => {
+        console.error("Erreur JSON :", error);
+      });
+  </script>
 </body>
 </html>
