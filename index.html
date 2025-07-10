@@ -5,15 +5,17 @@
   <title>Mur Végétal Intelligent</title>
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background-color: #eafbe7;
       text-align: center;
       padding: 30px;
     }
-    h1 { color: green; }
+    h1 {
+      color: green;
+    }
     .data {
       font-size: 24px;
-      margin: 15px;
+      margin: 15px 0;
     }
     button {
       background-color: green;
@@ -24,6 +26,7 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 20px;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: darkgreen;
@@ -32,12 +35,13 @@
 </head>
 <body>
   <h1>🌿 Mur Végétal Intelligent</h1>
+  
   <div class="data" id="humidite">Humidité : ...</div>
   <div class="data" id="luminosite">Luminosité : ...</div>
   <div class="data" id="air">Qualité de l'air : ...</div>
 
   <button onclick="chargerDonnees()">Rafraîchir</button>
-  
+
   <script>
     function chargerDonnees() {
       fetch("https://raw.githubusercontent.com/afrahm-projects/mur-vegetal-data/main/data.json")
@@ -53,10 +57,8 @@
         });
     }
 
-    // Charger les données automatiquement au chargement de la page
+    // Chargement automatique des données au démarrage
     window.onload = chargerDonnees;
   </script>
 </body>
 </html>
-
-
