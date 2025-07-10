@@ -39,22 +39,26 @@
   <div class="data" id="air">Qualité de l'air : ...</div>
 
   <button onclick="chargerDonnees()">Rafraîchir</button>
+  
+<script>
+  function chargerDonnees() {
+    fetch("https://raw.githubusercontent.com/afrahm-projects/mur-vegetal-data/main/data.json")
+      .then(response => response.json())
+      .then(data => {
+        // Ici, tu mets les lignes qui affichent les données dans la page
+        document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
+        document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
+        document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
+      })
+      .catch(error => {
+        console.error("Erreur JSON :", error);
+        alert("Erreur lors du chargement des données.");
+      });
+  }
 
-  <script>
-    function chargerDonnees() {
-      fetch("https://raw.githubusercontent.com/AfrahM-Projects/mur-vegetal-data/main/data.json")
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
-          document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
-          document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
-        })
-        .catch(error => {
-          console.error("Erreur JSON :", error);
-          alert("Erreur lors du chargement des données.");
-        });
-    }
-    window.onload = chargerDonnees;
-  </script>
+  // Appelle la fonction automatiquement au chargement de la page
+  window.onload = chargerDonnees;
+</script>
+
 </body>
 </html>
