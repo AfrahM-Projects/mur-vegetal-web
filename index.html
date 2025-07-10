@@ -44,8 +44,9 @@
 
   <script>
     function chargerDonnees() {
-      // 🔁 Lecture du fichier JSON depuis le même dépôt (mur-vegetal-web)
-      const url = "data.json?t=" + new Date().getTime(); // pour éviter le cache
+      console.log("🔁 Rafraîchissement en cours...");
+
+      const url = "data.json?t=" + new Date().getTime(); // Anti-cache
 
       fetch(url)
         .then(response => response.json())
@@ -53,13 +54,15 @@
           document.getElementById("humidite").textContent = "Humidité : " + data.humidite + " %";
           document.getElementById("luminosite").textContent = "Luminosité : " + data.luminosite + " lux";
           document.getElementById("air").textContent = "Qualité de l'air : " + data.air;
+          console.log("✅ Données mises à jour avec succès");
         })
         .catch(error => {
-          console.error("Erreur JSON :", error);
+          console.error("❌ Erreur lors du chargement JSON :", error);
           alert("Erreur lors du chargement des données.");
         });
     }
 
+    // Chargement automatique au démarrage
     window.onload = chargerDonnees;
   </script>
 </body>
