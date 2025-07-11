@@ -132,23 +132,21 @@
   <script>
     function chargerDonnees() {
       console.log("🔁 Rafraîchissement...");
-      const url = "data.json?t=" + new Date().getTime();
 
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById("humidite").querySelector("span").textContent = "Humidité : " + data.humidite + " %";
-          document.getElementById("luminosite").querySelector("span").textContent = "Luminosité : " + data.luminosite + " lux";
-          document.getElementById("air").querySelector("span").textContent = "Qualité de l'air : " + data.air;
-          document.getElementById("temperature").querySelector("span").textContent = "Température : " + data.temperature + " °C";
-          document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Données mises à jour ✅";
-          document.getElementById("derniereMaj").textContent = "Dernière mise à jour : " + new Date().toLocaleString();
-        })
-        .catch(error => {
-          console.error("Erreur JSON :", error);
-          alert("Erreur lors du chargement des données.");
-          document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Erreur ❌";
-        });
+      // Données simulées (à remplacer par fetch() si tu utilises un serveur)
+      const data = {
+        humidite: Math.floor(Math.random() * 100),       // Ex: 0 à 100 %
+        luminosite: Math.floor(Math.random() * 1000),    // Ex: 0 à 1000 lux
+        air: ["Bonne", "Moyenne", "Mauvaise"][Math.floor(Math.random() * 3)],
+        temperature: (15 + Math.random() * 15).toFixed(1) // Ex: 15.0 à 30.0 °C
+      };
+
+      document.getElementById("humidite").querySelector("span").textContent = "Humidité : " + data.humidite + " %";
+      document.getElementById("luminosite").querySelector("span").textContent = "Luminosité : " + data.luminosite + " lux";
+      document.getElementById("air").querySelector("span").textContent = "Qualité de l'air : " + data.air;
+      document.getElementById("temperature").querySelector("span").textContent = "Température : " + data.temperature + " °C";
+      document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Données mises à jour ✅";
+      document.getElementById("derniereMaj").textContent = "Dernière mise à jour : " + new Date().toLocaleString();
     }
 
     function activerArrosage() {
