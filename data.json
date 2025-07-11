@@ -1,6 +1,8 @@
 {
-  "humidite": 99,
-  "luminosite": 1,
-  "air": "Pollué"
+  "humidite": 55,
+  "luminosite": 430,
+  "air": "Bonne",
+  "temperature": 22.4
 }
+
 
