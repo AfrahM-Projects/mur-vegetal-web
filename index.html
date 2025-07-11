@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Connexion - Mur Végétal Intelligent</title>
+  <title>Mur Végétal Intelligent</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -10,6 +10,7 @@
       text-align: center;
       padding: 30px;
       color: #2e7d32;
+      transition: background 0.4s, color 0.4s;
     }
 
     .login-box, .app-interface {
@@ -40,10 +41,24 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 15px;
+      transition: background-color 0.3s, transform 0.2s;
     }
 
     button:hover {
       background-color: #2e7d32;
+      transform: scale(1.05);
+    }
+
+    img {
+      width: 250px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
     }
 
     .data {
@@ -65,6 +80,11 @@
       height: 30px;
     }
 
+    p {
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+
     .dark-mode {
       background: linear-gradient(to right, #263238, #37474f);
       color: #ffffff;
@@ -74,11 +94,19 @@
       background-color: #455a64;
       color: #ffffff;
     }
+
+    .dark-mode button {
+      background-color: #607d8b;
+    }
+
+    .dark-mode button:hover {
+      background-color: #455a64;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Zone de Connexion -->
+  <!-- Page de connexion -->
   <div class="login-box active" id="loginBox">
     <h2>🔐 Connexion requise</h2>
     <input type="text" id="login" placeholder="Nom d'utilisateur" /><br>
@@ -89,6 +117,7 @@
 
   <!-- Interface principale -->
   <div class="app-interface" id="appInterface">
+    <img src="https://cdn.pixabay.com/photo/2020/04/08/14/27/plant-5016848_1280.jpg" alt="Mur végétal" />
     <h1>🌿 Mur Végétal Intelligent</h1>
 
     <div class="data" id="etatSysteme">
@@ -124,7 +153,7 @@
   </div>
 
   <script>
-    // Informations d'identification autorisées (à personnaliser)
+    // Identifiants de connexion
     const identifiants = {
       utilisateur: "admin",
       motdepasse: "1234"
