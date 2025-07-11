@@ -10,7 +10,8 @@
       text-align: center;
       padding: 30px;
       color: #2e7d32;
-    } 
+      transition: background 0.4s, color 0.4s;
+    }
 
     img {
       width: 250px;
@@ -57,7 +58,7 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 30px;
+      margin: 15px 10px;
       transition: background-color 0.3s ease, transform 0.2s;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
@@ -66,13 +67,41 @@
       background-color: #2e7d32;
       transform: scale(1.05);
     }
+
+    p {
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+
+    /* Mode sombre */
+    .dark-mode {
+      background: linear-gradient(to right, #263238, #37474f);
+      color: #ffffff;
+    }
+
+    .dark-mode .data {
+      background-color: #455a64;
+      color: #ffffff;
+    }
+
+    .dark-mode button {
+      background-color: #607d8b;
+    }
+
+    .dark-mode button:hover {
+      background-color: #455a64;
+    }
   </style>
 </head>
 <body>
-  <!-- Ajoute ton image ici -->
   <img src="images/plant.jpg" alt="Mur végétal" />
 
   <h1>🌿 Mur Végétal Intelligent</h1>
+
+  <div class="data" id="etatSysteme">
+    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/gear.png" />
+    <span>État du système : Initialisation...</span>
+  </div>
 
   <div class="data" id="humidite">
     <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/water.png" />
@@ -89,7 +118,16 @@
     <span>Qualité de l'air : ...</span>
   </div>
 
+  <div class="data" id="temperature">
+    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/temperature.png" />
+    <span>Température : ...</span>
+  </div>
+
   <button onclick="chargerDonnees()">🔄 Rafraîchir</button>
+  <button onclick="activerArrosage()">💦 Arroser maintenant</button>
+  <button onclick="toggleMode()">🌙 Mode Sombre</button>
+
+  <p id="derniereMaj">Dernière mise à jour : ...</p>
 
   <script>
     function chargerDonnees() {
@@ -102,14 +140,28 @@
           document.getElementById("humidite").querySelector("span").textContent = "Humidité : " + data.humidite + " %";
           document.getElementById("luminosite").querySelector("span").textContent = "Luminosité : " + data.luminosite + " lux";
           document.getElementById("air").querySelector("span").textContent = "Qualité de l'air : " + data.air;
+          document.getElementById("temperature").querySelector("span").textContent = "Température : " + data.temperature + " °C";
+          document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Données mises à jour ✅";
+          document.getElementById("derniereMaj").textContent = "Dernière mise à jour : " + new Date().toLocaleString();
         })
         .catch(error => {
           console.error("Erreur JSON :", error);
           alert("Erreur lors du chargement des données.");
+          document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Erreur ❌";
         });
     }
 
-    // Lancement au démarrage
+    function activerArrosage() {
+      alert("Système d’arrosage activé 💧");
+      document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Arrosage en cours...";
+      // Ici tu peux envoyer une requête à ton serveur si nécessaire
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    // Lancement au chargement
     window.onload = chargerDonnees;
   </script>
 </body>
