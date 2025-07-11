@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Mur Végétal Intelligent</title>
+  <title>Connexion - Mur Végétal Intelligent</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -10,20 +10,40 @@
       text-align: center;
       padding: 30px;
       color: #2e7d32;
-      transition: background 0.4s, color 0.4s;
     }
 
-    img {
-      width: 250px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      margin-bottom: 25px;
+    .login-box, .app-interface {
+      display: none;
+      margin: auto;
+      max-width: 400px;
     }
 
-    h1 {
-      color: #2e7d32;
-      font-size: 2.5em;
-      margin-bottom: 30px;
+    .login-box.active, .app-interface.active {
+      display: block;
+    }
+
+    input {
+      padding: 10px;
+      width: 80%;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #43a047;
+      color: white;
+      font-size: 18px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #2e7d32;
     }
 
     .data {
@@ -38,11 +58,6 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      transition: transform 0.2s ease;
-    }
-
-    .data:hover {
-      transform: scale(1.02);
     }
 
     .icon {
@@ -50,30 +65,6 @@
       height: 30px;
     }
 
-    button {
-      background-color: #43a047;
-      color: white;
-      font-size: 18px;
-      padding: 12px 28px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      margin: 15px 10px;
-      transition: background-color 0.3s ease, transform 0.2s;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    button:hover {
-      background-color: #2e7d32;
-      transform: scale(1.05);
-    }
-
-    p {
-      margin-top: 20px;
-      font-size: 1.1rem;
-    }
-
-    /* Mode sombre */
     .dark-mode {
       background: linear-gradient(to right, #263238, #37474f);
       color: #ffffff;
@@ -83,62 +74,81 @@
       background-color: #455a64;
       color: #ffffff;
     }
-
-    .dark-mode button {
-      background-color: #607d8b;
-    }
-
-    .dark-mode button:hover {
-      background-color: #455a64;
-    }
   </style>
 </head>
 <body>
-  <img src="images/plant.jpg" alt="Mur végétal" />
 
-  <h1>🌿 Mur Végétal Intelligent</h1>
-
-  <div class="data" id="etatSysteme">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/gear.png" />
-    <span>État du système : Initialisation...</span>
+  <!-- Zone de Connexion -->
+  <div class="login-box active" id="loginBox">
+    <h2>🔐 Connexion requise</h2>
+    <input type="text" id="login" placeholder="Nom d'utilisateur" /><br>
+    <input type="password" id="motdepasse" placeholder="Mot de passe" /><br>
+    <button onclick="verifierConnexion()">Se connecter</button>
+    <p id="erreur" style="color:red;"></p>
   </div>
 
-  <div class="data" id="humidite">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/water.png" />
-    <span>Humidité : ...</span>
+  <!-- Interface principale -->
+  <div class="app-interface" id="appInterface">
+    <h1>🌿 Mur Végétal Intelligent</h1>
+
+    <div class="data" id="etatSysteme">
+      <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/gear.png" />
+      <span>État du système : Initialisation...</span>
+    </div>
+
+    <div class="data" id="humidite">
+      <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/water.png" />
+      <span>Humidité : ...</span>
+    </div>
+
+    <div class="data" id="luminosite">
+      <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/sun--v1.png" />
+      <span>Luminosité : ...</span>
+    </div>
+
+    <div class="data" id="air">
+      <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/air.png" />
+      <span>Qualité de l'air : ...</span>
+    </div>
+
+    <div class="data" id="temperature">
+      <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/temperature.png" />
+      <span>Température : ...</span>
+    </div>
+
+    <button onclick="chargerDonnees()">🔄 Rafraîchir</button>
+    <button onclick="activerArrosage()">💦 Arroser maintenant</button>
+    <button onclick="toggleMode()">🌙 Mode Sombre</button>
+
+    <p id="derniereMaj">Dernière mise à jour : ...</p>
   </div>
-
-  <div class="data" id="luminosite">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/sun--v1.png" />
-    <span>Luminosité : ...</span>
-  </div>
-
-  <div class="data" id="air">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/air.png" />
-    <span>Qualité de l'air : ...</span>
-  </div>
-
-  <div class="data" id="temperature">
-    <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/temperature.png" />
-    <span>Température : ...</span>
-  </div>
-
-  <button onclick="chargerDonnees()">🔄 Rafraîchir</button>
-  <button onclick="activerArrosage()">💦 Arroser maintenant</button>
-  <button onclick="toggleMode()">🌙 Mode Sombre</button>
-
-  <p id="derniereMaj">Dernière mise à jour : ...</p>
 
   <script>
-    function chargerDonnees() {
-      console.log("🔁 Rafraîchissement...");
+    // Informations d'identification autorisées (à personnaliser)
+    const identifiants = {
+      utilisateur: "admin",
+      motdepasse: "1234"
+    };
 
-      // Données simulées (à remplacer par fetch() si tu utilises un serveur)
+    function verifierConnexion() {
+      const login = document.getElementById("login").value;
+      const motdepasse = document.getElementById("motdepasse").value;
+
+      if (login === identifiants.utilisateur && motdepasse === identifiants.motdepasse) {
+        document.getElementById("loginBox").classList.remove("active");
+        document.getElementById("appInterface").classList.add("active");
+        chargerDonnees();
+      } else {
+        document.getElementById("erreur").textContent = "❌ Identifiants incorrects !";
+      }
+    }
+
+    function chargerDonnees() {
       const data = {
-        humidite: Math.floor(Math.random() * 100),       // Ex: 0 à 100 %
-        luminosite: Math.floor(Math.random() * 1000),    // Ex: 0 à 1000 lux
+        humidite: Math.floor(Math.random() * 100),
+        luminosite: Math.floor(Math.random() * 1000),
         air: ["Bonne", "Moyenne", "Mauvaise"][Math.floor(Math.random() * 3)],
-        temperature: (15 + Math.random() * 15).toFixed(1) // Ex: 15.0 à 30.0 °C
+        temperature: (15 + Math.random() * 15).toFixed(1)
       };
 
       document.getElementById("humidite").querySelector("span").textContent = "Humidité : " + data.humidite + " %";
@@ -152,15 +162,11 @@
     function activerArrosage() {
       alert("Système d’arrosage activé 💧");
       document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Arrosage en cours...";
-      // Ici tu peux envoyer une requête à ton serveur si nécessaire
     }
 
     function toggleMode() {
       document.body.classList.toggle("dark-mode");
     }
-
-    // Lancement au chargement
-    window.onload = chargerDonnees;
   </script>
 </body>
 </html>
