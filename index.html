@@ -93,24 +93,21 @@
     socket.onopen = () => {
       console.log("Connexion WebSocket établie");
     };
+socket.onmessage = (event) => {
+  console.log("Message reçu du WebSocket :", event.data);
+  try {
+    const data = JSON.parse(event.data);
+    if (data.humidite !== undefined) {
+      document.getElementById("humidite").querySelector("span").textContent = "Humidité : " + data.humidite + " %";
+    }
+    if (data.temperature !== undefined) {
+      document.getElementById("temperature").querySelector("span").textContent = "Température : " + data.temperature + " °C";
+    }
+  } catch(e) {
+    console.error("Erreur de parsing JSON :", e);
+  }
+};
 
-    socket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.humidite !== undefined) {
-          document.getElementById("humidite").querySelector("span").textContent = "Humidité : " + data.humidite + " %";
-        }
-        if (data.temperature !== undefined) {
-          document.getElementById("temperature").querySelector("span").textContent = "Température : " + data.temperature + " °C";
-        }
-      } catch(e) {
-        console.error("Erreur de parsing JSON :", e);
-      }
-    };
-
-    socket.onerror = (error) => {
-      console.error("Erreur WebSocket :", error);
-    };
 
     function toggleMode() {
       document.body.classList.toggle("dark-mode");
