@@ -1,273 +1,114 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <title>Mur Végétal Intelligent</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to right, #eafbe7, #c8e6c9);
-      padding: 30px;
-      margin: 0;
-      color: #2e7d32;
-      transition: background 0.4s, color 0.4s;
+<!-- Ajouter dans <head> ou juste avant la fin de </body> -->
+<script src="https://unpkg.com/paho-mqtt/mqttws31.min.js"></script>
+
+<script>
+  const identifiants = {
+    utilisateur: "admin",
+    motdepasse: "1234"
+  };
+
+  let client; // MQTT client
+
+  function verifierConnexion() {
+    const login = document.getElementById("login").value;
+    const motdepasse = document.getElementById("motdepasse").value;
+
+    if (login === identifiants.utilisateur && motdepasse === identifiants.motdepasse) {
+      document.getElementById("loginBox").classList.remove("active");
+      document.getElementById("appInterface").classList.add("active");
+      demarrerMQTT(); // on lance la connexion MQTT au lieu de WebSocket
+    } else {
+      document.getElementById("erreur").textContent = "❌ Identifiants incorrects !";
     }
+  }
 
-    .login-box, .app-interface {
-      display: none;
-      margin: auto;
-      max-width: 1000px;
-    }
+  function demarrerMQTT() {
+    const etatSysteme = document.getElementById("etatSysteme").querySelector("span");
+    const humidite = document.getElementById("humidite").querySelector("span");
+    const luminosite = document.getElementById("luminosite").querySelector("span");
+    const air = document.getElementById("air").querySelector("span");
+    const temperature = document.getElementById("temperature").querySelector("span");
+    const derniereMaj = document.getElementById("derniereMaj");
 
-    .login-box.active, .app-interface.active {
-      display: block;
-    }
+    // Connexion au broker MQTT de ChirpStack (adapter l'IP/port si besoin)
+    // IMPORTANT: Le broker doit accepter la connexion WebSocket MQTT sur ce port (souvent 8083)
+    const brokerUrl = "ws://192.168.5.120:8083/mqtt";
+    const clientId = "webclient_" + Math.random().toString(16).substr(2, 8);
 
-    input {
-      padding: 10px;
-      width: 80%;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
+    client = new Paho.MQTT.Client(brokerUrl, clientId);
 
-    button {
-      background-color: #43a047;
-      color: white;
-      font-size: 16px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-      min-width: 130px;
-    }
-
-    button:hover {
-      background-color: #2e7d32;
-      transform: scale(1.05);
-    }
-
-    .button-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .data {
-      background-color: white;
-      border-radius: 15px;
-      padding: 15px 25px;
-      margin: 10px auto;
-      font-size: 1.3rem;
-      max-width: 400px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .icon {
-      width: 30px;
-      height: 30px;
-    }
-
-    p {
-      margin-top: 20px;
-      font-size: 1.1rem;
-      text-align: center;
-    }
-
-    .dark-mode {
-      background: linear-gradient(to right, #263238, #37474f);
-      color: #ffffff;
-    }
-
-    .dark-mode .data {
-      background-color: #455a64;
-      color: #ffffff;
-    }
-
-    .dark-mode button {
-      background-color: #607d8b;
-    }
-
-    .dark-mode button:hover {
-      background-color: #455a64;
-    }
-
-    .interface-container {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 40px;
-      align-items: flex-start;
-    }
-
-    .left-side img {
-      width: 100%;
-      max-width: 400px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .right-side {
-      flex: 1;
-      min-width: 300px;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Page de connexion -->
-  <div class="login-box active" id="loginBox">
-    <h2 style="text-align:center">🔐 Connexion requise</h2>
-    <input type="text" id="login" placeholder="Nom d'utilisateur" /><br>
-    <input type="password" id="motdepasse" placeholder="Mot de passe" /><br>
-    <div style="text-align:center">
-      <button onclick="verifierConnexion()">Se connecter</button>
-    </div>
-    <p id="erreur" style="color:red; text-align:center;"></p>
-  </div>
-
-  <!-- Interface principale -->
-  <div class="app-interface" id="appInterface">
-    <h1>🌿 Mur Végétal Intelligent</h1>
-
-    <div class="interface-container">
-      <div class="left-side">
-        <img src="images/plant.jpg" alt="Mur végétal" />
-      </div>
-
-      <div class="right-side">
-        <div class="data" id="etatSysteme">
-          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/gear.png" />
-          <span>État du système : Initialisation...</span>
-        </div>
-
-        <div class="data" id="humidite">
-          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/water.png" />
-          <span>Humidité : ...</span>
-        </div>
-
-        <div class="data" id="luminosite">
-          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/sun--v1.png" />
-          <span>Luminosité : ...</span>
-        </div>
-
-        <div class="data" id="air">
-          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/air.png" />
-          <span>Qualité de l'air : ...</span>
-        </div>
-
-        <div class="data" id="temperature">
-          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/temperature.png" />
-          <span>Température : ...</span>
-        </div>
-
-        <div class="button-container">
-          <button onclick="chargerDonnees()">🔄 Rafraîchir</button>
-          <button onclick="activerArrosage()">💦 Arroser</button>
-          <button onclick="toggleMode()">🌙 Mode sombre</button>
-          <button onclick="seDeconnecter()">🚪 Déconnexion</button>
-        </div>
-
-        <p id="derniereMaj">Dernière mise à jour : ...</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const identifiants = {
-      utilisateur: "admin",
-      motdepasse: "1234"
+    client.onConnectionLost = (responseObject) => {
+      etatSysteme.textContent = "État du système : Connexion MQTT perdue ❌";
+      if (responseObject.errorCode !== 0) {
+        console.error("Connexion MQTT perdue:", responseObject.errorMessage);
+      }
     };
 
-    let websocket;
+    client.onMessageArrived = (message) => {
+      try {
+        // Le payload arrive en base64 ou JSON selon ChirpStack, à adapter !
+        // Ici, on suppose que ChirpStack publie un JSON clair dans le topic.
+        const data = JSON.parse(message.payloadString);
 
-    function verifierConnexion() {
-      const login = document.getElementById("login").value;
-      const motdepasse = document.getElementById("motdepasse").value;
-
-      if (login === identifiants.utilisateur && motdepasse === identifiants.motdepasse) {
-        document.getElementById("loginBox").classList.remove("active");
-        document.getElementById("appInterface").classList.add("active");
-        demarrerWebSocket();
-      } else {
-        document.getElementById("erreur").textContent = "❌ Identifiants incorrects !";
+        if (data.humidite) humidite.textContent = "Humidité : " + data.humidite + " %";
+        if (data.luminosite) luminosite.textContent = "Luminosité : " + data.luminosite + " lux";
+        if (data.air) air.textContent = "Qualité de l'air : " + data.air;
+        if (data.temperature) temperature.textContent = "Température : " + data.temperature + " °C";
+        derniereMaj.textContent = "Dernière mise à jour : " + new Date().toLocaleString();
+        etatSysteme.textContent = "État du système : Données mises à jour ✅";
+      } catch (e) {
+        console.error("Erreur parsing message MQTT :", e);
       }
+    };
+
+    client.connect({
+      onSuccess: () => {
+        etatSysteme.textContent = "État du système : Connecté au broker MQTT ✅";
+
+        // S’abonner au topic ChirpStack où les données arrivent, adapte ce topic :
+        // Exemple donné dans ta question:
+        // "application/f0ce757d-5f90-46d9-aebd-b056d9ef74c1/device/2311111111111123/event/up"
+        const topic = "application/f0ce757d-5f90-46d9-aebd-b056d9ef74c1/device/2311111111111123/event/up";
+
+        client.subscribe(topic, {
+          qos: 0,
+          onSuccess: () => {
+            console.log("Abonné au topic MQTT:", topic);
+          },
+          onFailure: (err) => {
+            console.error("Erreur abonnement topic MQTT:", err);
+          }
+        });
+      },
+      onFailure: (err) => {
+        etatSysteme.textContent = "État du système : Échec connexion MQTT ❌";
+        console.error("Erreur connexion MQTT:", err);
+      }
+    });
+  }
+
+  function chargerDonnees() {
+    console.log("🔄 Rafraîchir manuellement (désactivé si MQTT actif)");
+  }
+
+  function activerArrosage() {
+    alert("Système d’arrosage activé 💧");
+    document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Arrosage en cours...";
+  }
+
+  function toggleMode() {
+    document.body.classList.toggle("dark-mode");
+  }
+
+  function seDeconnecter() {
+    if (client && client.isConnected()) {
+      client.disconnect();
     }
-
-    function chargerDonnees() {
-      console.log("🔄 Rafraîchir manuellement (désactivé si WebSocket actif)");
-    }
-
-    function demarrerWebSocket() {
-      websocket = new WebSocket("ws://192.168.5.120:8765"); // ← adapte ici si besoin
-
-      const etatSysteme = document.getElementById("etatSysteme").querySelector("span");
-      const humidite = document.getElementById("humidite").querySelector("span");
-      const luminosite = document.getElementById("luminosite").querySelector("span");
-      const air = document.getElementById("air").querySelector("span");
-      const temperature = document.getElementById("temperature").querySelector("span");
-      const derniereMaj = document.getElementById("derniereMaj");
-
-      websocket.onopen = () => {
-        etatSysteme.textContent = "État du système : Connecté au serveur WebSocket ✅";
-      };
-
-      websocket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.humidite) humidite.textContent = "Humidité : " + data.humidite + " %";
-          if (data.luminosite) luminosite.textContent = "Luminosité : " + data.luminosite + " lux";
-          if (data.air) air.textContent = "Qualité de l'air : " + data.air;
-          if (data.temperature) temperature.textContent = "Température : " + data.temperature + " °C";
-          derniereMaj.textContent = "Dernière mise à jour : " + new Date().toLocaleString();
-          etatSysteme.textContent = "État du système : Données mises à jour ✅";
-        } catch (e) {
-          console.error("❌ Erreur parsing données WebSocket :", e);
-        }
-      };
-
-      websocket.onerror = () => {
-        etatSysteme.textContent = "État du système : Erreur de connexion WebSocket ❌";
-      };
-
-      websocket.onclose = () => {
-        etatSysteme.textContent = "État du système : Connexion WebSocket fermée";
-      };
-    }
-
-    function activerArrosage() {
-      alert("Système d’arrosage activé 💧");
-      document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Arrosage en cours...";
-    }
-
-    function toggleMode() {
-      document.body.classList.toggle("dark-mode");
-    }
-
-    function seDeconnecter() {
-      if (websocket) websocket.close();
-      document.getElementById("appInterface").classList.remove("active");
-      document.getElementById("loginBox").classList.add("active");
-      document.getElementById("login").value = "";
-      document.getElementById("motdepasse").value = "";
-      document.getElementById("erreur").textContent = "";
-      document.body.classList.remove("dark-mode");
-    }
-  </script>
-</body>
-</html>
+    document.getElementById("appInterface").classList.remove("active");
+    document.getElementById("loginBox").classList.add("active");
+    document.getElementById("login").value = "";
+    document.getElementById("motdepasse").value = "";
+    document.getElementById("erreur").textContent = "";
+    document.body.classList.remove("dark-mode");
+  }
+</script>
