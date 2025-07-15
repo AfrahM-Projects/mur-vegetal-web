@@ -106,7 +106,6 @@
       background-color: #455a64;
     }
 
-    /* ============ NOUVEAU STYLE POUR DEUX COLONNES ============ */
     .interface-container {
       display: flex;
       flex-direction: row;
@@ -147,12 +146,10 @@
     <h1>🌿 Mur Végétal Intelligent</h1>
 
     <div class="interface-container">
-      <!-- Partie gauche avec la photo -->
       <div class="left-side">
         <img src="images/plant.jpg" alt="Mur végétal" />
       </div>
 
-      <!-- Partie droite avec les données et les boutons -->
       <div class="right-side">
         <div class="data" id="etatSysteme">
           <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/gear.png" />
@@ -206,19 +203,18 @@
       if (login === identifiants.utilisateur && motdepasse === identifiants.motdepasse) {
         document.getElementById("loginBox").classList.remove("active");
         document.getElementById("appInterface").classList.add("active");
-        demarrerWebSocket();  // <- au lieu de chargerDonnees()
+        demarrerWebSocket();
       } else {
         document.getElementById("erreur").textContent = "❌ Identifiants incorrects !";
       }
     }
 
     function chargerDonnees() {
-      // Si tu veux garder la fonction aléatoire pour test manuel, sinon supprimer ce contenu.
-      console.log("🔄 Rafraîchir manuellement désactivé, les données arrivent par WebSocket.");
+      console.log("🔄 Rafraîchir manuellement (désactivé si WebSocket actif)");
     }
 
     function demarrerWebSocket() {
-      websocket = new WebSocket("ws://localhost:8765"); // adapte l'adresse si besoin
+      websocket = new WebSocket("ws://192.168.5.120:8765"); // ← adapte ici si besoin
 
       const etatSysteme = document.getElementById("etatSysteme").querySelector("span");
       const humidite = document.getElementById("humidite").querySelector("span");
@@ -241,7 +237,7 @@
           derniereMaj.textContent = "Dernière mise à jour : " + new Date().toLocaleString();
           etatSysteme.textContent = "État du système : Données mises à jour ✅";
         } catch (e) {
-          console.error("Erreur parsing données WebSocket :", e);
+          console.error("❌ Erreur parsing données WebSocket :", e);
         }
       };
 
@@ -264,7 +260,7 @@
     }
 
     function seDeconnecter() {
-      if(websocket) websocket.close();
+      if (websocket) websocket.close();
       document.getElementById("appInterface").classList.remove("active");
       document.getElementById("loginBox").classList.add("active");
       document.getElementById("login").value = "";
