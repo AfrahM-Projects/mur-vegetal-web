@@ -1,96 +1,277 @@
-<!-- ... Le <head> et tout le style CSS RESTE COMME TU L'AS MIS ... -->
-
-<!-- CONTENU BODY + SCRIPT -->
-<script>
-  const identifiants = {
-    utilisateur: "admin",
-    motdepasse: "1234"
-  };
-
-  let websocket;
-
-  function verifierConnexion() {
-    const login = document.getElementById("login").value;
-    const motdepasse = document.getElementById("motdepasse").value;
-
-    if (login === identifiants.utilisateur && motdepasse === identifiants.motdepasse) {
-      document.getElementById("loginBox").classList.remove("active");
-      document.getElementById("appInterface").classList.add("active");
-      demarrerWebSocket();
-    } else {
-      document.getElementById("erreur").textContent = "❌ Identifiants incorrects !";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Mur Végétal Intelligent</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #eafbe7, #c8e6c9);
+      padding: 30px;
+      margin: 0;
+      color: #2e7d32;
+      transition: background 0.4s, color 0.4s;
     }
-  }
 
-  function chargerDonnees() {
-    // Optionnel : envoyer un message au serveur si besoin.
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      console.log("🔄 Requête de rafraîchissement envoyée.");
-      websocket.send(JSON.stringify({ action: "refresh" }));
-    } else {
-      console.warn("⚠️ WebSocket non connecté.");
+    .login-box, .app-interface {
+      display: none;
+      margin: auto;
+      max-width: 1000px;
     }
-  }
 
-  function demarrerWebSocket() {
-    websocket = new WebSocket("ws://localhost:8765");
+    .login-box.active, .app-interface.active {
+      display: block;
+    }
 
-    const etatSysteme = document.getElementById("etatSysteme").querySelector("span");
-    const humidite = document.getElementById("humidite").querySelector("span");
-    const luminosite = document.getElementById("luminosite").querySelector("span");
-    const air = document.getElementById("air").querySelector("span");
-    const temperature = document.getElementById("temperature").querySelector("span");
-    const derniereMaj = document.getElementById("derniereMaj");
+    input {
+      padding: 10px;
+      width: 80%;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-    websocket.onopen = () => {
-      etatSysteme.textContent = "État du système : Connecté au serveur WebSocket ✅";
+    button {
+      background-color: #43a047;
+      color: white;
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+      min-width: 130px;
+    }
+
+    button:hover {
+      background-color: #2e7d32;
+      transform: scale(1.05);
+    }
+
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .data {
+      background-color: white;
+      border-radius: 15px;
+      padding: 15px 25px;
+      margin: 10px auto;
+      font-size: 1.3rem;
+      max-width: 400px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .icon {
+      width: 30px;
+      height: 30px;
+    }
+
+    p {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .dark-mode {
+      background: linear-gradient(to right, #263238, #37474f);
+      color: #ffffff;
+    }
+
+    .dark-mode .data {
+      background-color: #455a64;
+      color: #ffffff;
+    }
+
+    .dark-mode button {
+      background-color: #607d8b;
+    }
+
+    .dark-mode button:hover {
+      background-color: #455a64;
+    }
+
+    /* ============ NOUVEAU STYLE POUR DEUX COLONNES ============ */
+    .interface-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .left-side img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .right-side {
+      flex: 1;
+      min-width: 300px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page de connexion -->
+  <div class="login-box active" id="loginBox">
+    <h2 style="text-align:center">🔐 Connexion requise</h2>
+    <input type="text" id="login" placeholder="Nom d'utilisateur" /><br>
+    <input type="password" id="motdepasse" placeholder="Mot de passe" /><br>
+    <div style="text-align:center">
+      <button onclick="verifierConnexion()">Se connecter</button>
+    </div>
+    <p id="erreur" style="color:red; text-align:center;"></p>
+  </div>
+
+  <!-- Interface principale -->
+  <div class="app-interface" id="appInterface">
+    <h1>🌿 Mur Végétal Intelligent</h1>
+
+    <div class="interface-container">
+      <!-- Partie gauche avec la photo -->
+      <div class="left-side">
+        <img src="images/plant.jpg" alt="Mur végétal" />
+      </div>
+
+      <!-- Partie droite avec les données et les boutons -->
+      <div class="right-side">
+        <div class="data" id="etatSysteme">
+          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/gear.png" />
+          <span>État du système : Initialisation...</span>
+        </div>
+
+        <div class="data" id="humidite">
+          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/water.png" />
+          <span>Humidité : ...</span>
+        </div>
+
+        <div class="data" id="luminosite">
+          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/sun--v1.png" />
+          <span>Luminosité : ...</span>
+        </div>
+
+        <div class="data" id="air">
+          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/air.png" />
+          <span>Qualité de l'air : ...</span>
+        </div>
+
+        <div class="data" id="temperature">
+          <img class="icon" src="https://img.icons8.com/ios-filled/50/000000/temperature.png" />
+          <span>Température : ...</span>
+        </div>
+
+        <div class="button-container">
+          <button onclick="chargerDonnees()">🔄 Rafraîchir</button>
+          <button onclick="activerArrosage()">💦 Arroser</button>
+          <button onclick="toggleMode()">🌙 Mode sombre</button>
+          <button onclick="seDeconnecter()">🚪 Déconnexion</button>
+        </div>
+
+        <p id="derniereMaj">Dernière mise à jour : ...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const identifiants = {
+      utilisateur: "admin",
+      motdepasse: "1234"
     };
 
-    websocket.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
+    let websocket;
 
-        if (data.humidite) humidite.textContent = "Humidité : " + data.humidite + " %";
-        if (data.luminosite) luminosite.textContent = "Luminosité : " + data.luminosite + " lux";
-        if (data.air) air.textContent = "Qualité de l'air : " + data.air;
-        if (data.temperature) temperature.textContent = "Température : " + data.temperature + " °C";
+    function verifierConnexion() {
+      const login = document.getElementById("login").value;
+      const motdepasse = document.getElementById("motdepasse").value;
 
-        derniereMaj.textContent = "Dernière mise à jour : " + new Date().toLocaleString();
-        etatSysteme.textContent = "État du système : Données mises à jour ✅";
-      } catch (e) {
-        console.error("Erreur parsing données WebSocket :", e);
+      if (login === identifiants.utilisateur && motdepasse === identifiants.motdepasse) {
+        document.getElementById("loginBox").classList.remove("active");
+        document.getElementById("appInterface").classList.add("active");
+        demarrerWebSocket();  // <- au lieu de chargerDonnees()
+      } else {
+        document.getElementById("erreur").textContent = "❌ Identifiants incorrects !";
       }
-    };
-
-    websocket.onerror = () => {
-      etatSysteme.textContent = "État du système : Erreur WebSocket ❌";
-    };
-
-    websocket.onclose = () => {
-      etatSysteme.textContent = "État du système : Connexion WebSocket fermée ❌";
-    };
-  }
-
-  function activerArrosage() {
-    alert("💧 Système d’arrosage activé !");
-    document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Arrosage en cours...";
-    // Tu peux envoyer un message WebSocket ici si tu veux notifier le backend
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-      websocket.send(JSON.stringify({ action: "arrosage" }));
     }
-  }
 
-  function toggleMode() {
-    document.body.classList.toggle("dark-mode");
-  }
+    function chargerDonnees() {
+      // Si tu veux garder la fonction aléatoire pour test manuel, sinon supprimer ce contenu.
+      console.log("🔄 Rafraîchir manuellement désactivé, les données arrivent par WebSocket.");
+    }
 
-  function seDeconnecter() {
-    if (websocket) websocket.close();
-    document.getElementById("appInterface").classList.remove("active");
-    document.getElementById("loginBox").classList.add("active");
-    document.getElementById("login").value = "";
-    document.getElementById("motdepasse").value = "";
-    document.getElementById("erreur").textContent = "";
-    document.body.classList.remove("dark-mode");
-  }
-</script>
+    function demarrerWebSocket() {
+      websocket = new WebSocket("ws://localhost:8765"); // adapte l'adresse si besoin
+
+      const etatSysteme = document.getElementById("etatSysteme").querySelector("span");
+      const humidite = document.getElementById("humidite").querySelector("span");
+      const luminosite = document.getElementById("luminosite").querySelector("span");
+      const air = document.getElementById("air").querySelector("span");
+      const temperature = document.getElementById("temperature").querySelector("span");
+      const derniereMaj = document.getElementById("derniereMaj");
+
+      websocket.onopen = () => {
+        etatSysteme.textContent = "État du système : Connecté au serveur WebSocket ✅";
+      };
+
+      websocket.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.humidite) humidite.textContent = "Humidité : " + data.humidite + " %";
+          if (data.luminosite) luminosite.textContent = "Luminosité : " + data.luminosite + " lux";
+          if (data.air) air.textContent = "Qualité de l'air : " + data.air;
+          if (data.temperature) temperature.textContent = "Température : " + data.temperature + " °C";
+          derniereMaj.textContent = "Dernière mise à jour : " + new Date().toLocaleString();
+          etatSysteme.textContent = "État du système : Données mises à jour ✅";
+        } catch (e) {
+          console.error("Erreur parsing données WebSocket :", e);
+        }
+      };
+
+      websocket.onerror = () => {
+        etatSysteme.textContent = "État du système : Erreur de connexion WebSocket ❌";
+      };
+
+      websocket.onclose = () => {
+        etatSysteme.textContent = "État du système : Connexion WebSocket fermée";
+      };
+    }
+
+    function activerArrosage() {
+      alert("Système d’arrosage activé 💧");
+      document.getElementById("etatSysteme").querySelector("span").textContent = "État du système : Arrosage en cours...";
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function seDeconnecter() {
+      if(websocket) websocket.close();
+      document.getElementById("appInterface").classList.remove("active");
+      document.getElementById("loginBox").classList.add("active");
+      document.getElementById("login").value = "";
+      document.getElementById("motdepasse").value = "";
+      document.getElementById("erreur").textContent = "";
+      document.body.classList.remove("dark-mode");
+    }
+  </script>
+</body>
+</html>
